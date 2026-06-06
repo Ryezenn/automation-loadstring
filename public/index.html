@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="StringHunter v2.0 PRO — Advanced Lua & Web Script Extractor with live statistics monitoring, security scanning, and multi-strategy fetch.">
+  <title>StringHunter v2.0 PRO — Advanced Script Extractor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Ambient background orbs -->
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+  <div class="bg-orb orb-3"></div>
+
+  <div class="app-shell">
+
+    <!-- ═══════════════════ SIDEBAR ═══════════════════ -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-inner">
+
+        <!-- Brand -->
+        <div class="brand">
+          <div class="brand-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.46 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.14Z"/>
+              <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.46 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.14Z"/>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <span class="brand-name">StringHunter</span>
+            <span class="brand-tag">v2.0 PRO</span>
+          </div>
+        </div>
+
+        <!-- System Status -->
+        <div class="status-card">
+          <div class="status-row">
+            <span class="status-dot active"></span>
+            <span class="status-label">Engine Online</span>
+          </div>
+          <div class="status-metrics">
+            <div class="metric">
+              <span class="metric-val cyan" id="sideLatency">—</span>
+              <span class="metric-key">Latency</span>
+            </div>
+            <div class="metric-divider"></div>
+            <div class="metric">
+              <span class="metric-val green">v2.0</span>
+              <span class="metric-key">Version</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="sidebar-nav">
+          <p class="nav-label">Preset Cepat</p>
+          <button class="nav-btn" onclick="applyPreset('loadstring')" id="presetLua">
+            <span class="nav-btn-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            </span>
+            <span>Lua Loadstring</span>
+          </button>
+          <button class="nav-btn" onclick="applyPreset('base64')" id="presetBase64">
+            <span class="nav-btn-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </span>
+            <span>Base64 Decoder</span>
+          </button>
+          <button class="nav-btn" onclick="applyPreset('json')" id="presetJson">
+            <span class="nav-btn-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+            </span>
+            <span>JSON Fetcher</span>
+          </button>
+        </nav>
+
+        <!-- Session History -->
+        <div class="history-section">
+          <div class="history-head">
+            <p class="nav-label">Riwayat Sesi</p>
+            <button class="btn-icon-sm" id="clearHistoryBtn" title="Hapus Riwayat">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+          </div>
+          <div class="history-list" id="historyList">
+            <p class="empty-hint">Belum ada riwayat</p>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- ═══════════════════ MAIN ═══════════════════ -->
+    <main class="main">
+
+      <!-- Top bar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <h1 class="page-title">Console Ekstraksi</h1>
+          <p class="page-subtitle">Ambil, analisis, dan format raw string dari URL manapun</p>
+        </div>
+        <div class="topbar-right">
+          <!-- Live monitoring pills -->
+          <div class="monitor-pills">
+            <div class="pill pill-green">
+              <span class="pill-dot"></span>
+              <span>API Aktif</span>
+            </div>
+            <div class="pill pill-cyan">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <span>Security ON</span>
+            </div>
+          </div>
+          <!-- Mode toggle -->
+          <div class="mode-switch">
+            <button class="mode-opt active" id="normalModeBtn" onclick="setAppMode('normal')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+              Normal
+            </button>
+            <button class="mode-opt" id="diffModeBtn" onclick="setAppMode('diff')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              Diff
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Live Overview Strip -->
+      <div class="overview-strip">
+        <div class="overview-cell">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          <div>
+            <span class="ov-key">LATENSI</span>
+            <span class="ov-val cyan" id="liveLatency">—</span>
+          </div>
+        </div>
+        <div class="overview-sep"></div>
+        <div class="overview-cell">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <div>
+            <span class="ov-key">WAKTU LOKAL</span>
+            <span class="ov-val" id="localClock">—</span>
+          </div>
+        </div>
+        <div class="overview-sep"></div>
+        <div class="overview-cell">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <div>
+            <span class="ov-key">KEAMANAN</span>
+            <span class="ov-val green">ENABLED v2</span>
+          </div>
+        </div>
+        <div class="overview-sep"></div>
+        <div class="overview-cell">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <div>
+            <span class="ov-key">MODE ENGINE</span>
+            <span class="ov-val purple" id="activeEngineMode">Idle</span>
+          </div>
+        </div>
+        <div class="overview-sep"></div>
+        <div class="overview-cell">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          <div>
+            <span class="ov-key">JUMLAH EKSTRAKSI</span>
+            <span class="ov-val orange" id="extractCount">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content Scroll Area -->
+      <div class="content-scroll">
+
+        <!-- ──── Input Panel ──── -->
+        <section class="card" id="inputCard">
+          <div class="card-header">
+            <div class="card-title-group">
+              <div class="card-icon-wrap">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              </div>
+              <h2 class="card-title">Konfigurasi Ekstraksi</h2>
+            </div>
+          </div>
+
+          <!-- Normal Form -->
+          <div id="normalForm">
+
+            <!-- URL Input -->
+            <div class="field-group">
+              <label class="field-label" for="targetUrl">URL Target</label>
+              <div class="input-pill">
+                <span class="input-pill-prefix">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                </span>
+                <input type="url" id="targetUrl" class="input-pill-field" placeholder="https://raw.githubusercontent.com/user/repo/main/script.lua">
+              </div>
+            </div>
+
+            <!-- Direct paste -->
+            <div class="field-group">
+              <label class="field-label" for="directInput">
+                Tempel Kode Langsung
+                <span class="label-badge live-badge">LIVE</span>
+              </label>
+              <textarea id="directInput" class="code-textarea" rows="4" placeholder="-- Tempel kode Lua atau teks di sini untuk analisis statistik real-time..."></textarea>
+            </div>
+
+            <!-- Config Grid -->
+            <div class="config-grid">
+              <div class="field-group">
+                <label class="field-label" for="extractMode">Mode Ekstraksi</label>
+                <div class="select-wrap">
+                  <select id="extractMode" class="select-field" onchange="toggleOptionFields()">
+                    <option value="auto">⚡ Deteksi Otomatis</option>
+                    <option value="full">📄 Seluruh Konten</option>
+                    <option value="loadstring">🎯 Cari loadstring()</option>
+                    <option value="regex">🔍 Custom Regex</option>
+                    <option value="between">✂️ Antara Dua String</option>
+                    <option value="lines">📏 Line Range</option>
+                    <option value="json_path">📦 JSON Path</option>
+                    <option value="base64_auto">🔑 Auto Base64</option>
+                    <option value="obfuscation_detect">🔒 Deteksi Obfuscation</option>
+                  </select>
+                  <span class="select-arrow">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                  </span>
+                </div>
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="outputFormat">Format Output</label>
+                <div class="select-wrap">
+                  <select id="outputFormat" class="select-field">
+                    <option value="summary">📊 Laporan Lengkap</option>
+                    <option value="raw">📝 Raw Text</option>
+                    <option value="annotated">💬 Anotasi Baris</option>
+                  </select>
+                  <span class="select-arrow">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dynamic Config Fields -->
+            <div id="dynamicFields">
+              <div id="regexFields" class="dynamic-field" style="display:none">
+                <div class="config-grid">
+                  <div class="field-group"><label class="field-label">Pola Regex</label><input type="text" id="regexPattern" class="input-field" placeholder="loadstring\((.*?)\)"></div>
+                  <div class="field-group"><label class="field-label">Flags</label><input type="text" id="regexFlags" class="input-field" value="gi" placeholder="gi"></div>
+                </div>
+              </div>
+              <div id="betweenFields" class="dynamic-field" style="display:none">
+                <div class="config-grid">
+                  <div class="field-group"><label class="field-label">Awal String</label><input type="text" id="startMarker" class="input-field" placeholder="-- START --"></div>
+                  <div class="field-group"><label class="field-label">Akhir String</label><input type="text" id="endMarker" class="input-field" placeholder="-- END --"></div>
+                </div>
+              </div>
+              <div id="linesFields" class="dynamic-field" style="display:none">
+                <div class="config-grid">
+                  <div class="field-group"><label class="field-label">Baris Mulai</label><input type="number" id="startLine" class="input-field" value="1" min="1"></div>
+                  <div class="field-group"><label class="field-label">Baris Akhir</label><input type="number" id="endLine" class="input-field" value="50" min="1"></div>
+                </div>
+              </div>
+              <div id="jsonPathFields" class="dynamic-field" style="display:none">
+                <div class="field-group"><label class="field-label">JSON Dot Path</label><input type="text" id="jsonPath" class="input-field" placeholder="data.items[0].url"></div>
+              </div>
+            </div>
+
+            <!-- Checkbox inline -->
+            <label class="checkbox-row" for="recursivelyInline">
+              <input type="checkbox" id="recursivelyInline" class="checkbox-input">
+              <span class="checkbox-mark"></span>
+              <span class="checkbox-label">🔗 Gabungkan Modul/URL Berantai (Recursive Inlining)</span>
+            </label>
+
+          </div>
+
+          <!-- Diff Form (hidden by default) -->
+          <div id="diffForm" style="display:none">
+            <div class="config-grid">
+              <div class="field-group">
+                <label class="field-label">URL Lama (Versi 1)</label>
+                <div class="input-pill">
+                  <span class="input-pill-prefix"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span>
+                  <input type="url" id="diffUrl1" class="input-pill-field" placeholder="https://raw.github.com/...v1/script.lua">
+                </div>
+              </div>
+              <div class="field-group">
+                <label class="field-label">URL Baru (Versi 2)</label>
+                <div class="input-pill">
+                  <span class="input-pill-prefix"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span>
+                  <input type="url" id="diffUrl2" class="input-pill-field" placeholder="https://raw.github.com/...v2/script.lua">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CTA -->
+          <div class="cta-row">
+            <button id="extractBtn" class="btn-primary">
+              <span class="btn-content">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Ekstrak &amp; Analisis
+              </span>
+              <span class="btn-loading" style="display:none">
+                <span class="spinner"></span>
+                Mengambil data...
+              </span>
+            </button>
+          </div>
+        </section>
+
+        <!-- ──── Terminal Logger ──── -->
+        <section class="card terminal-card" id="progressLogger" style="display:none">
+          <div class="terminal-header">
+            <div class="terminal-dots">
+              <span class="tdot red"></span>
+              <span class="tdot yellow"></span>
+              <span class="tdot green"></span>
+            </div>
+            <span class="terminal-title">stringhunter — process log</span>
+          </div>
+          <div class="terminal-body" id="stepsContainer">
+            <div class="tlog-line" id="stepFetch">
+              <span class="tlog-icon waiting">○</span>
+              <span class="tlog-text">Fetch: Menghubungkan ke URL target...</span>
+            </div>
+            <div class="tlog-line" id="stepAnalyze">
+              <span class="tlog-icon waiting">○</span>
+              <span class="tlog-text">Analyze: Mendeteksi bahasa & encoding...</span>
+            </div>
+            <div class="tlog-line" id="stepSecurity">
+              <span class="tlog-icon waiting">○</span>
+              <span class="tlog-text">Security: Memindai pola berbahaya & kredensial...</span>
+            </div>
+            <div class="tlog-line" id="stepFinalize">
+              <span class="tlog-icon waiting">○</span>
+              <span class="tlog-text">Output: Memformat hasil & menyusun laporan...</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ──── Results Panel ──── -->
+        <section class="card results-card" id="resultsPanel" style="display:none">
+
+          <!-- Results header -->
+          <div class="results-head">
+            <div class="card-title-group">
+              <div class="card-icon-wrap success">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <h2 class="card-title">Hasil Ekstraksi</h2>
+            </div>
+            <div class="results-badges">
+              <span id="fetchStrategyBadge" class="rbadge rbadge-blue">DIRECT</span>
+              <span id="languageBadge" class="rbadge rbadge-purple">LUA</span>
+              <span id="encodingBadge" class="rbadge rbadge-gray">UTF-8</span>
+            </div>
+          </div>
+
+          <!-- Security banners -->
+          <div id="securityBanner" class="alert alert-danger" style="display:none">
+            <span class="alert-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </span>
+            <div class="alert-body">
+              <strong>⚠️ Security Warning — Pola Berbahaya Terdeteksi</strong>
+              <ul id="securityWarningList" class="alert-list"></ul>
+            </div>
+          </div>
+          <div id="securitySafeBanner" class="alert alert-success">
+            <span class="alert-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </span>
+            <span>Aman — Tidak ada pola berbahaya atau kebocoran kredensial terdeteksi</span>
+          </div>
+
+          <!-- Stats Grid -->
+          <div class="stats-grid">
+            <div class="stat-card" data-stat="size">
+              <span class="stat-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+              </span>
+              <span class="stat-val" id="statSize">0 KB</span>
+              <span class="stat-key">Ukuran</span>
+            </div>
+            <div class="stat-card" data-stat="chars">
+              <span class="stat-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+              </span>
+              <span class="stat-val" id="statChars">0</span>
+              <span class="stat-key">Karakter</span>
+            </div>
+            <div class="stat-card" data-stat="lines">
+              <span class="stat-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="21" y1="10" x2="7" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="21" y1="18" x2="7" y2="18"/></svg>
+              </span>
+              <span class="stat-val" id="statLines">0</span>
+              <span class="stat-key">Baris</span>
+            </div>
+            <div class="stat-card" data-stat="words">
+              <span class="stat-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              </span>
+              <span class="stat-val" id="statWords">0</span>
+              <span class="stat-key">Kata</span>
+            </div>
+          </div>
+
+          <!-- Tab bar -->
+          <div class="tabbar">
+            <button class="tab active" onclick="switchTab('loadstringsTab')" data-tab="loadstringsTab">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              Loadstrings
+            </button>
+            <button class="tab" onclick="switchTab('extractedTab')" data-tab="extractedTab">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Konten
+            </button>
+            <button class="tab" onclick="switchTab('reportTab')" data-tab="reportTab">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              Laporan
+            </button>
+            <button class="tab" onclick="switchTab('rawTab')" data-tab="rawTab">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              Raw
+            </button>
+            <button class="tab" id="diffTabBtn" onclick="switchTab('diffTab')" data-tab="diffTab" style="display:none">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              Diff
+            </button>
+          </div>
+
+          <!-- Tab panes -->
+          <div class="tab-panes">
+
+            <!-- Loadstrings Tab -->
+            <div class="tab-pane active" id="loadstringsTab">
+              <div class="pane-toolbar">
+                <span class="pane-info">Daftar Loadstring &amp; HTTP Script</span>
+                <button class="btn-ghost" onclick="copyAllLoadstrings()">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  Salin Semua
+                </button>
+              </div>
+              <div id="loadstringsContainer" class="ls-list">
+                <p class="empty-hint center">Tidak ada loadstring terdeteksi.</p>
+              </div>
+            </div>
+
+            <!-- Extracted Tab -->
+            <div class="tab-pane" id="extractedTab">
+              <div class="pane-toolbar">
+                <span class="pane-info filename" id="extractedTitle">extracted_content.txt</span>
+                <button class="btn-ghost" onclick="copyContent('extractedCodeBlock')">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  Salin
+                </button>
+              </div>
+              <div class="code-block"><pre><code id="extractedCodeBlock">Menunggu data...</code></pre></div>
+            </div>
+
+            <!-- Report Tab -->
+            <div class="tab-pane" id="reportTab">
+              <div class="report-grid">
+                <div class="report-section">
+                  <h4 class="report-section-title">Ringkasan</h4>
+                  <p id="reportSummary" class="report-text">Menunggu analisis...</p>
+                </div>
+                <div class="report-section">
+                  <h4 class="report-section-title">Metadata File</h4>
+                  <table class="meta-table">
+                    <tr><td class="meta-key">Penulis</td><td id="metaAuthor">—</td></tr>
+                    <tr><td class="meta-key">Versi</td><td id="metaVersion">—</td></tr>
+                    <tr><td class="meta-key">Tanggal</td><td id="metaDate">—</td></tr>
+                    <tr><td class="meta-key">Status</td><td id="metaExtractionNotes">OK</td></tr>
+                  </table>
+                </div>
+                <div class="report-section full-span">
+                  <h4 class="report-section-title">Header Komentar</h4>
+                  <div class="code-block sm"><pre><code id="metaComments">Tidak ada komentar header.</code></pre></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Raw Tab -->
+            <div class="tab-pane" id="rawTab">
+              <div class="pane-toolbar">
+                <span class="pane-info">Raw Content Asli</span>
+                <button class="btn-ghost" onclick="copyContent('rawCodeBlock')">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  Salin Raw
+                </button>
+              </div>
+              <div class="code-block"><pre><code id="rawCodeBlock">Belum ada konten...</code></pre></div>
+            </div>
+
+            <!-- Diff Tab -->
+            <div class="tab-pane" id="diffTab">
+              <div class="pane-toolbar">
+                <span class="pane-info">Diff — Merah=Dihapus, Hijau=Ditambahkan</span>
+                <button class="btn-ghost" onclick="copyContent('diffBlock')">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  Salin
+                </button>
+              </div>
+              <div class="diff-block" id="diffBlock">
+                <p class="empty-hint center">Pilih dua URL untuk membandingkan.</p>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+      </div><!-- /content-scroll -->
+    </main>
+  </div><!-- /app-shell -->
+
+  <script src="app.js"></script>
+</body>
+</html>
