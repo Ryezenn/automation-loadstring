@@ -1,0 +1,15 @@
+{
+  "name": "website-loadstring",
+  "version": "1.0.0",
+  "description": "StringHunter - Advanced Web String Extractor v2.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5",
+    "axios": "^1.7.2"
+  }
+}
